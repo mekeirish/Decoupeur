@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="fr" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decoupeur</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+       window.tailwind = window.tailwind || {}; window.tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0b0f19',
+                            800: '#111827',
+                            700: '#1f2937',
+                            600: '#374151'
+                        };}
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(17, 24, 39, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .pressed-shadow {
+            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.6), inset -2px -2px 5px rgba(255, 255, 255, 0.05);
+        }
+        .raised-shadow {
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5), -2px -2px 6px rgba(255, 255, 255, 0.03);
+        }
+    </style>
+<meta property="og:title" content="Decoupeur">
+<meta name="twitter:title" content="Decoupeur">
+<meta name="application-name" content="Decoupeur">
+<meta name="apple-mobile-web-app-title" content="Decoupeur">
+<meta name="description" content="Decoupeur de longs codes">
+<meta property="og:description" content="Decoupeur de longs codes">
+<meta name="twitter:description" content="Decoupeur de longs codes">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icon.png">
+<meta property="og:image" content="https://mekeirish.github.io/Decoupeur/icon.png">
+<meta name="twitter:image" content="https://mekeirish.github.io/Decoupeur/icon.png">
+<meta name="twitter:card" content="summary">
+<meta property="og:url" content="https://mekeirish.github.io/Decoupeur/">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#dcbc8c">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="./icon.png">
+<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1320x2868.png">
+<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1206x2622.png">
+<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1290x2796.png">
+<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1179x2556.png">
+<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1284x2778.png">
+<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1170x2532.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1242x2688.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash-828x1792.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1125x2436.png">
+<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1242x2208.png">
+<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash-750x1334.png">
+<link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash-640x1136.png">
+</head>
+<body class="bg-dark-900 text-gray-100 min-h-screen flex flex-col font-sans antialiased">
+
+    <!-- Header -->
+    <header class="glass border-b border-gray-800 p-4 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center raised-shadow font-bold text-lg text-white">
+                    ✂️
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg tracking-wide text-white">PWA Splicer</h1>
+                    <p class="text-xs text-gray-400">Découpeur intelligent de code par blocs</p>
+                </div>
+            </div>
+
+            <!-- Contrôles de découpe -->
+            <div class="flex items-center flex-wrap gap-2 justify-center">
+                <span class="text-xs text-gray-400 mr-2 font-medium">Morceaux :</span>
+                <div id="split-buttons" class="flex flex-wrap gap-1.5">
+                    <!-- Boutons générés dynamiquement ou statiques -->
+                    <button onclick="setParts(2)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="2">2</button>
+                    <button onclick="setParts(3)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="3">3</button>
+                    <button onclick="setParts(4)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="4">4</button>
+                    <button onclick="setParts(6)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="6">6</button>
+                    <button onclick="setParts(10)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 transition border border-indigo-500" data-val="10">10</button>
+                    <button onclick="setParts(15)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="15">15</button>
+                    <button onclick="setParts(20)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="20">20</button>
+                </div>
+                <button onclick="processSplitting()" class="ml-2 px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium text-xs rounded-lg shadow transition active:scale-95">
+                    Découper
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Colonne Gauche : Input Code -->
+        <section class="lg:col-span-6 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <label for="source-code" class="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                    <span>📄 Code Source Balisé</span>
+                    <span id="stats-blocks" class="bg-dark-700 px-2 py-0.5 rounded text-indigo-400 text-[10px]">0 blocs détectés</span>
+                </label>
+                <button onclick="clearInput()" class="text-xs text-red-400 hover:text-red-300 transition">Effacer</button>
+            </div>
+            <div class="flex-1 relative flex flex-col">
+                <textarea id="source-code" placeholder="Colle ton code monolithique ici (avec /*#BLOC:... */ ou <!--#BLOC:...-->)..." 
+                    class="w-full h-[65vh] bg-dark-800 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-300 focus:outline-none focus:border-indigo-500 resize-none pressed-shadow leading-relaxed"
+                    oninput="analyzeCode()"></textarea>
+            </div>
+        </section>
+
+        <!-- Colonne Droite : Boutons carrés & Aperçu -->
+        <section class="lg:col-span-6 flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    📦 Morceaux Générés (<span id="stats-parts-count">0</span>)
+                </span>
+                <span class="text-[11px] text-gray-500">Clique sur un carré pour le copier</span>
+            </div>
+
+            <!-- Grille des boutons carrés -->
+            <div class="bg-dark-800 border border-gray-800 rounded-xl p-4 min-h-[140px] flex flex-col justify-center">
+                <div id="chunks-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2.5">
+                    <div class="col-span-full text-center text-xs text-gray-500 py-6">
+                        Colle du code balisé à gauche pour générer les morceaux.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Zone d'aperçu du morceau sélectionné -->
+            <div class="flex-1 flex flex-col gap-2">
+                <div class="flex items-center justify-between">
+                    <span id="preview-title" class="text-xs font-medium text-indigo-400">Aperçu du morceau</span>
+                    <button onclick="copyCurrentPreview()" id="btn-copy-preview" class="text-xs bg-dark-700 hover:bg-dark-600 text-gray-300 px-3 py-1 rounded-lg border border-gray-700 transition flex items-center gap-1.5 hidden">
+                        📋 Copier ce morceau
+                    </button>
+                </div>
+                <pre id="preview-content" class="w-full h-[32vh] bg-dark-800 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-300 overflow-auto pressed-shadow select-all">Sélectionne un morceau ci-dessus pour voir son contenu...</pre>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="glass border-t border-gray-800 py-3 px-6 text-center text-xs text-gray-500">
+        PWA Splicer • Respect strict des intégrités de blocs balisés
+    </footer>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-6 right-6 bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-2xl transition-all duration-300 transform translate-y-16 opacity-0 pointer-events-none z-50 flex items-center gap-2">
+        <span>✨</span> <span id="toast-msg">Copié dans le presse-papiers !</span>
+    </div>
+
+    <script>
+        let currentPartsCount = 10;
+        let generatedChunks = [];
+        let activeChunkIndex = null;
+
+        function setParts(n) {
+            currentPartsCount = n;
+            document.querySelectorAll('.part-btn').forEach(btn => {
+                if (parseInt(btn.dataset.val) === n) {
+                    btn.className = "part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 transition border border-indigo-500";
+                } else {
+                    btn.className = "part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700";
+                }
+            });
+            processSplitting();
+        }
+
+        function clearInput() {
+            document.getElementById('source-code').value = '';
+            analyzeCode();
+        }
+
+        // Parseur intelligent de blocs balisés
+        function parseBlocks(text) {
+            const blocks = [];
+            // Regex pour capturer les blocs JS/CSS (/*#BLOC:nom*/.../*#FIN:nom*/) et HTML (<!--#BLOC:nom-->...<!--#FIN:nom-->)
+            // On cherche de façon globale et non récursive stricte de premier niveau pour garder les blocs indépendants
+            const regex = /(\/\*#BLOC:([\s\S]*?)\*\/[\s\S]*?\/\*#FIN:\2\*\/|<!--#BLOC:([\s\S]*?)-->[\s\S]*?<!--#FIN:\3-->)/g;
+            
+            let match;
+            let lastIndex = 0;
+            let freeHeaders = [];
+
+            while ((match = regex.exec(text)) !== null) {
+                // S'il y a du texte libre avant le premier bloc (ex: balises <style>, imports, entêtes)
+                if (match.index > lastIndex) {
+                    const freeText = text.substring(lastIndex, match.index).trim();
+                    if (freeText) {
+                        blocks.push({ type: 'free', content: freeText });
+                    }
+                }
+                blocks.push({ type: 'block', content: match[0] });
+                lastIndex = regex.lastIndex;
+            }
+
+            // S'il reste du texte à la fin
+            if (lastIndex < text.length) {
+                const remaining = text.substring(lastIndex).trim();
+                if (remaining) {
+                    blocks.push({ type: 'free', content: remaining });
+                }
+            }
+
+            // Si aucun marqueur n'a été trouvé, on découpe par lignes ou blocs de lignes pour éviter de bloquer l'utilisateur
+            if (blocks.length === 0 && text.trim().length > 0) {
+                const lines = text.split('\n');
+                let chunkLines = [];
+                lines.forEach((line, idx) => {
+                    chunkLines.push(line);
+                    if (chunkLines.length >= 25 || idx === lines.length - 1) {
+                        blocks.push({ type: 'free', content: chunkLines.join('\n') });
+                        chunkLines = [];
+                    }
+                });
+            }
+
+            return blocks;
+        }
+
+        function analyzeCode() {
+            const text = document.getElementById('source-code').value;
+            const blocks = parseBlocks(text);
+            document.getElementById('stats-blocks').innerText = `${blocks.length} blocs / éléments détectés`;
+            processSplitting();
+        }
+
+        function processSplitting() {
+            const text = document.getElementById('source-code').value;
+            if (!text.trim()) {
+                generatedChunks = [];
+                renderChunks();
+                document.getElementById('preview-content').innerText = "Sélectionne un morceau ci-dessus pour voir son contenu...";
+                document.getElementById('preview-title').innerText = "Aperçu du morceau";
+                document.getElementById('btn-copy-preview').classList.add('hidden');
+                document.getElementById('stats-parts-count').innerText = "0";
+                return;
+            }
+
+            const blocks = parseBlocks(text);
+            const targetParts = Math.min(currentPartsCount, blocks.length > 0 ? blocks.length : 1);
+            
+            generatedChunks = [];
+            
+            if (blocks.length <= targetParts) {
+                // S'il y a moins de blocs que de morceaux demandés, chaque bloc devient son propre morceau
+                blocks.forEach(b => generatedChunks.push(b.content));
+            } else {
+                // Répartition équilibrée intelligente
+                const blockSize = Math.ceil(blocks.length / targetParts);
+                for (let i = 0; i < blocks.length; i += blockSize) {
+                    const chunkBlocks = blocks.slice(i, i + blockSize);
+                    const chunkString = chunkBlocks.map(b => b.content).join('\n\n');
+                    generatedChunks.push(chunkString);
+                }
+            }
+
+            document.getElementById('stats-parts-count').innerText = generatedChunks.length;
+            renderChunks();
+
+            // Sélectionner par défaut le premier morceau si disponible
+            if (generatedChunks.length > 0) {
+                selectChunk(0);
+            }
+        }
+
+        function renderChunks() {
+            const grid = document.getElementById('chunks-grid');
+            if (generatedChunks.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center text-xs text-gray-500 py-6">Colle du code balisé à gauche pour générer les morceaux.</div>`;
+                return;
+            }
+
+            let html = '';
+            generatedChunks.forEach((chunk, idx) => {
+                const isActive = activeChunkIndex === idx;
+                const activeClass = isActive ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg scale-105 ring-2 ring-indigo-500/50' : 'bg-dark-700 hover:bg-dark-600 border-gray-700 text-gray-300';
+                
+                html += `
+                    <button onclick="handleChunkClick(${idx})" 
+                        class="aspect-square rounded-xl font-mono text-xs font-bold flex flex-col items-center justify-center transition-all duration-200 border ${activeClass} active:scale-95 raised-shadow relative group"
+                        title="Morceau ${idx + 1} (${chunk.length} caractères) - Clic pour copier">
+                        <span class="text-sm">#${idx + 1}</span>
+                        <span class="text-[9px] opacity-60 font-normal">${Math.round(chunk.length / 100) / 10}k</span>
+                    </button>
+                `;
+            });
+            grid.innerHTML = html;
+        }
+
+        function handleChunkClick(idx) {
+            selectChunk(idx);
+            copyChunkToClipboard(idx);
+        }
+
+        function selectChunk(idx) {
+            activeChunkIndex = idx;
+            renderChunks();
+            
+            const content = generatedChunks[idx];
+            document.getElementById('preview-title').innerText = `Morceau #${idx + 1} sur ${generatedChunks.length} (${content.length} caractères)`;
+            document.getElementById('preview-content').innerText = content;
+            document.getElementById('btn-copy-preview').classList.remove('hidden');
+        }
+
+        function copyCurrentPreview() {
+            if (activeChunkIndex !== null && generatedChunks[activeChunkIndex]) {
+                copyTextToClipboard(generatedChunks[activeChunkIndex], `Morceau #${activeChunkIndex + 1} copié !`);
+            }
+        }
+
+        function copyChunkToClipboard(idx) {
+            copyTextToClipboard(generatedChunks[idx], `Morceau #${idx + 1} copié dans le presse-papiers !`);
+        }
+
+        function copyTextToClipboard(text, successMsg) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast(successMsg);
+            }).catch(err => {
+                console.error('Erreur lors de la copie: ', err);
+                showToast('Erreur lors de la copie', true);
+            });
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.innerText = msg;
+            toast.className = `fixed bottom-6 right-6 px-4 py-2 rounded-xl text-xs font-medium shadow-2xl transition-all duration-300 transform translate-y-0 opacity-100 z-50 flex items-center gap-2 ${isError ? 'bg-red-600 text-white' : 'bg-indigo-600 text-white'}`;
+            
+            setTimeout(() => {
+                toast.className = 'fixed bottom-6 right-6 bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-2xl transition-all duration-300 transform translate-y-16 opacity-0 pointer-events-none z-50 flex items-center gap-2';
+            }, 2500);
+        }
+    </script>
+<script>
+if ('serviceWorker' in navigator) {
+window.addEventListener('load',()=>{
+navigator.serviceWorker.register('./sw.js').catch(err=>console.error(err));
+});
+}
+</script>
+</body>
+</html>
