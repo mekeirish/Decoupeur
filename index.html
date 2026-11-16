@@ -1,356 +1,715 @@
 <!DOCTYPE html>
-<html lang="fr" class="dark">
+<html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decoupeur</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-       window.tailwind = window.tailwind || {}; window.tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            900: '#0b0f19',
-                            800: '#111827',
-                            700: '#1f2937',
-                            600: '#374151'
-                        };}
-                }
-            }
-        }
-    </script>
-    <style>
-        .glass {
-            background: rgba(17, 24, 39, 0.75);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-        }
-        .pressed-shadow {
-            box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.6), inset -2px -2px 5px rgba(255, 255, 255, 0.05);
-        }
-        .raised-shadow {
-            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.5), -2px -2px 6px rgba(255, 255, 255, 0.03);
-        }
-    </style>
-<meta property="og:title" content="Decoupeur">
-<meta name="twitter:title" content="Decoupeur">
-<meta name="application-name" content="Decoupeur">
-<meta name="apple-mobile-web-app-title" content="Decoupeur">
-<meta name="description" content="Decoupeur de longs codes">
-<meta property="og:description" content="Decoupeur de longs codes">
-<meta name="twitter:description" content="Decoupeur de longs codes">
-<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
-<link rel="icon" type="image/png" sizes="512x512" href="./icon.png">
-<meta property="og:image" content="https://mekeirish.github.io/Decoupeur/icon.png">
-<meta name="twitter:image" content="https://mekeirish.github.io/Decoupeur/icon.png">
-<meta name="twitter:card" content="summary">
-<meta property="og:url" content="https://mekeirish.github.io/Decoupeur/">
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#dcbc8c">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="./icon.png">
-<link rel="apple-touch-startup-image" media="(device-width: 440px) and (device-height: 956px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1320x2868.png">
-<link rel="apple-touch-startup-image" media="(device-width: 402px) and (device-height: 874px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1206x2622.png">
-<link rel="apple-touch-startup-image" media="(device-width: 430px) and (device-height: 932px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1290x2796.png">
-<link rel="apple-touch-startup-image" media="(device-width: 393px) and (device-height: 852px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1179x2556.png">
-<link rel="apple-touch-startup-image" media="(device-width: 428px) and (device-height: 926px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1284x2778.png">
-<link rel="apple-touch-startup-image" media="(device-width: 390px) and (device-height: 844px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1170x2532.png">
-<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1242x2688.png">
-<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash-828x1792.png">
-<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1125x2436.png">
-<link rel="apple-touch-startup-image" media="(device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait)" href="./splash-1242x2208.png">
-<link rel="apple-touch-startup-image" media="(device-width: 375px) and (device-height: 667px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash-750x1334.png">
-<link rel="apple-touch-startup-image" media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)" href="./splash-640x1136.png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>CodeSplitter Pro — Découpeur par Blocs</title>
+  <style>
+    :root {
+      --bg-base: #0a0c10;
+      --bg-surface: #12161f;
+      --bg-elevated: #1a202c;
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-active: #00e5ff;
+      --accent-cyan: #00e5ff;
+      --accent-purple: #8b5cf6;
+      --accent-green: #10b981;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-base);
+      color: var(--text-main);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      gap: 16px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 2px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent-cyan);
+      box-shadow: 0 0 12px var(--accent-cyan);
+    }
+
+    h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 99px;
+      background: rgba(0, 229, 255, 0.12);
+      color: var(--accent-cyan);
+      border: 1px solid rgba(0, 229, 255, 0.25);
+    }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .editor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .editor-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-mini {
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      padding: 5px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-mini:active {
+      transform: scale(0.96);
+    }
+
+    textarea {
+      width: 100%;
+      height: 180px;
+      background: var(--bg-base);
+      color: var(--text-main);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    textarea:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .controls-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .stepper {
+      display: flex;
+      align-items: center;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 4px;
+    }
+
+    .stepper button {
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--bg-elevated);
+      color: var(--text-main);
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .stepper button:active {
+      transform: scale(0.94);
+    }
+
+    .stepper input {
+      width: 52px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 1.05rem;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .presets {
+      display: flex;
+      gap: 6px;
+    }
+
+    .preset-btn {
+      padding: 8px 11px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .preset-btn.active {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      background: rgba(0, 229, 255, 0.1);
+    }
+
+    .btn-split {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      color: #05070a;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0, 229, 255, 0.25);
+      transition: transform 0.15s;
+    }
+
+    .btn-split:active {
+      transform: scale(0.98);
+    }
+
+    .results-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .grid-chunks {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+      gap: 10px;
+    }
+
+    .chunk-btn {
+      aspect-ratio: 1 / 1;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      color: var(--text-main);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.18s ease;
+    }
+
+    .chunk-btn:active {
+      transform: scale(0.94);
+    }
+
+    .chunk-btn.copied {
+      border-color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.12);
+    }
+
+    .chunk-btn.active-preview {
+      box-shadow: 0 0 0 2px var(--accent-cyan);
+    }
+
+    .chunk-num {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--accent-cyan);
+    }
+
+    .chunk-btn.copied .chunk-num {
+      color: var(--accent-green);
+    }
+
+    .chunk-lines {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .chunk-status {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      display: none;
+    }
+
+    .chunk-btn.copied .chunk-status {
+      display: block;
+    }
+
+    .preview-box {
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 10px;
+      font-family: monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      max-height: 130px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--accent-green);
+      color: #04130d;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 10px 20px;
+      border-radius: 99px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+      transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
 </head>
-<body class="bg-dark-900 text-gray-100 min-h-screen flex flex-col font-sans antialiased">
-
-    <!-- Header -->
-    <header class="glass border-b border-gray-800 p-4 sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 flex items-center justify-center raised-shadow font-bold text-lg text-white">
-                    ✂️
-                </div>
-                <div>
-                    <h1 class="font-bold text-lg tracking-wide text-white">PWA Splicer</h1>
-                    <p class="text-xs text-gray-400">Découpeur intelligent de code par blocs</p>
-                </div>
-            </div>
-
-            <!-- Contrôles de découpe -->
-            <div class="flex items-center flex-wrap gap-2 justify-center">
-                <span class="text-xs text-gray-400 mr-2 font-medium">Morceaux :</span>
-                <div id="split-buttons" class="flex flex-wrap gap-1.5">
-                    <!-- Boutons générés dynamiquement ou statiques -->
-                    <button onclick="setParts(2)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="2">2</button>
-                    <button onclick="setParts(3)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="3">3</button>
-                    <button onclick="setParts(4)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="4">4</button>
-                    <button onclick="setParts(6)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="6">6</button>
-                    <button onclick="setParts(10)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 transition border border-indigo-500" data-val="10">10</button>
-                    <button onclick="setParts(15)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="15">15</button>
-                    <button onclick="setParts(20)" class="part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700" data-val="20">20</button>
-                </div>
-                <button onclick="processSplitting()" class="ml-2 px-4 py-1.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white font-medium text-xs rounded-lg shadow transition active:scale-95">
-                    Découper
-                </button>
-            </div>
-        </div>
+<body>
+  <div class="app-container">
+    <header>
+      <div class="brand">
+        <div class="brand-dot"></div>
+        <h1>CodeSplitter Pro</h1>
+      </div>
+      <span class="badge" id="statsBadge">0 lignes</span>
     </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        
-        <!-- Colonne Gauche : Input Code -->
-        <section class="lg:col-span-6 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-                <label for="source-code" class="text-xs font-semibold uppercase tracking-wider text-gray-400 flex items-center gap-2">
-                    <span>📄 Code Source Balisé</span>
-                    <span id="stats-blocks" class="bg-dark-700 px-2 py-0.5 rounded text-indigo-400 text-[10px]">0 blocs détectés</span>
-                </label>
-                <button onclick="clearInput()" class="text-xs text-red-400 hover:text-red-300 transition">Effacer</button>
-            </div>
-            <div class="flex-1 relative flex flex-col">
-                <textarea id="source-code" placeholder="Colle ton code monolithique ici (avec /*#BLOC:... */ ou <!--#BLOC:...-->)..." 
-                    class="w-full h-[65vh] bg-dark-800 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-300 focus:outline-none focus:border-indigo-500 resize-none pressed-shadow leading-relaxed"
-                    oninput="analyzeCode()"></textarea>
-            </div>
-        </section>
+    <section class="card">
+      <div class="editor-header">
+        <span>Code source (#BLOC respectés)</span>
+        <div class="editor-actions">
+          <button type="button" class="btn-mini" id="btnPaste">Coller</button>
+          <button type="button" class="btn-mini" id="btnClear">Effacer</button>
+        </div>
+      </div>
+      <textarea id="codeInput" placeholder="Collez votre code monolithique ici..."></textarea>
 
-        <!-- Colonne Droite : Boutons carrés & Aperçu -->
-        <section class="lg:col-span-6 flex flex-col gap-3">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-semibold uppercase tracking-wider text-gray-400">
-                    📦 Morceaux Générés (<span id="stats-parts-count">0</span>)
-                </span>
-                <span class="text-[11px] text-gray-500">Clique sur un carré pour le copier</span>
-            </div>
+      <div class="controls-row">
+        <div class="stepper">
+          <button type="button" id="btnMinus">−</button>
+          <input type="number" id="partsCount" value="3" min="1" max="50">
+          <button type="button" id="btnPlus">+</button>
+        </div>
+        <div class="presets">
+          <button type="button" class="preset-btn" data-val="2">2</button>
+          <button type="button" class="preset-btn active" data-val="3">3</button>
+          <button type="button" class="preset-btn" data-val="4">4</button>
+          <button type="button" class="preset-btn" data-val="6">6</button>
+        </div>
+      </div>
 
-            <!-- Grille des boutons carrés -->
-            <div class="bg-dark-800 border border-gray-800 rounded-xl p-4 min-h-[140px] flex flex-col justify-center">
-                <div id="chunks-grid" class="grid grid-cols-5 sm:grid-cols-10 gap-2.5">
-                    <div class="col-span-full text-center text-xs text-gray-500 py-6">
-                        Colle du code balisé à gauche pour générer les morceaux.
-                    </div>
-                </div>
-            </div>
+      <button type="button" class="btn-split" id="btnSplit">DÉCOUPER EN ÉQUILIBRANT</button>
+    </section>
 
-            <!-- Zone d'aperçu du morceau sélectionné -->
-            <div class="flex-1 flex flex-col gap-2">
-                <div class="flex items-center justify-between">
-                    <span id="preview-title" class="text-xs font-medium text-indigo-400">Aperçu du morceau</span>
-                    <button onclick="copyCurrentPreview()" id="btn-copy-preview" class="text-xs bg-dark-700 hover:bg-dark-600 text-gray-300 px-3 py-1 rounded-lg border border-gray-700 transition flex items-center gap-1.5 hidden">
-                        📋 Copier ce morceau
-                    </button>
-                </div>
-                <pre id="preview-content" class="w-full h-[32vh] bg-dark-800 border border-gray-800 rounded-xl p-4 text-xs font-mono text-gray-300 overflow-auto pressed-shadow select-all">Sélectionne un morceau ci-dessus pour voir son contenu...</pre>
-            </div>
-        </section>
+    <section class="card" id="resultsCard" style="display: none;">
+      <div class="results-header">
+        <span id="resultsInfo">Parties générées</span>
+        <span id="copiedCounter">0 / 0 copiés</span>
+      </div>
+      <div class="grid-chunks" id="chunksGrid"></div>
+      <div class="preview-box" id="previewBox">Touchez un carré pour copier et prévisualiser...</div>
+    </section>
+  </div>
 
-    </main>
+  <div class="toast" id="toast">Copié dans le presse-papier !</div>
 
-    <!-- Footer -->
-    <footer class="glass border-t border-gray-800 py-3 px-6 text-center text-xs text-gray-500">
-        PWA Splicer • Respect strict des intégrités de blocs balisés
-    </footer>
+  <script>
+    const state = {
+      chunks: [],
+      copiedSet: new Set(),
+      activeIndex: -1
+    };
 
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-6 right-6 bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-2xl transition-all duration-300 transform translate-y-16 opacity-0 pointer-events-none z-50 flex items-center gap-2">
-        <span>✨</span> <span id="toast-msg">Copié dans le presse-papiers !</span>
-    </div>
+    const dom = {
+      codeInput: document.getElementById('codeInput'),
+      statsBadge: document.getElementById('statsBadge'),
+      partsCount: document.getElementById('partsCount'),
+      btnMinus: document.getElementById('btnMinus'),
+      btnPlus: document.getElementById('btnPlus'),
+      btnPaste: document.getElementById('btnPaste'),
+      btnClear: document.getElementById('btnClear'),
+      btnSplit: document.getElementById('btnSplit'),
+      resultsCard: document.getElementById('resultsCard'),
+      resultsInfo: document.getElementById('resultsInfo'),
+      copiedCounter: document.getElementById('copiedCounter'),
+      chunksGrid: document.getElementById('chunksGrid'),
+      previewBox: document.getElementById('previewBox'),
+      toast: document.getElementById('toast'),
+      presets: document.querySelectorAll('.preset-btn')
+    };
 
-    <script>
-        let currentPartsCount = 10;
-        let generatedChunks = [];
-        let activeChunkIndex = null;
+    // Analyse un segment de lignes en unités de premier niveau (blocs entiers ou lignes libres)
+    function parseTopLevelUnits(lines) {
+      const units = [];
+      const stack = [];
+      let buffer = [];
 
-        function setParts(n) {
-            currentPartsCount = n;
-            document.querySelectorAll('.part-btn').forEach(btn => {
-                if (parseInt(btn.dataset.val) === n) {
-                    btn.className = "part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-indigo-600 transition border border-indigo-500";
-                } else {
-                    btn.className = "part-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-dark-700 hover:bg-indigo-600 transition border border-gray-700";
-                }
-            });
-            processSplitting();
+      const openRegex = /(?:\/\*|<!--)\s*#BLOC:([^\s*>-]+)\s*(?:\*\/|-->)/;
+      const closeRegex = /(?:\/\*|<!--)\s*#FIN:([^\s*>-]+)\s*(?:\*\/|-->)/;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const openMatch = line.match(openRegex);
+        const closeMatch = line.match(closeRegex);
+
+        if (openMatch) {
+          if (stack.length === 0 && buffer.length > 0) {
+            units.push({ lines: buffer, weight: buffer.length, isBlock: false });
+            buffer = [];
+          }
+          stack.push(openMatch[1]);
+          buffer.push(line);
+        } else if (closeMatch) {
+          buffer.push(line);
+          if (stack.length > 0) {
+            stack.pop();
+          }
+          if (stack.length === 0) {
+            units.push({ lines: buffer, weight: buffer.length, isBlock: true });
+            buffer = [];
+          }
+        } else {
+          if (stack.length === 0) {
+            units.push({ lines: [line], weight: 1, isBlock: false });
+          } else {
+            buffer.push(line);
+          }
         }
+      }
 
-        function clearInput() {
-            document.getElementById('source-code').value = '';
-            analyzeCode();
-        }
+      if (buffer.length > 0) {
+        units.push({ lines: buffer, weight: buffer.length, isBlock: stack.length > 0 });
+      }
 
-        // Parseur intelligent de blocs balisés
-        function parseBlocks(text) {
-            const blocks = [];
-            // Regex pour capturer les blocs JS/CSS (/*#BLOC:nom*/.../*#FIN:nom*/) et HTML (<!--#BLOC:nom-->...<!--#FIN:nom-->)
-            // On cherche de façon globale et non récursive stricte de premier niveau pour garder les blocs indépendants
-            const regex = /(\/\*#BLOC:([\s\S]*?)\*\/[\s\S]*?\/\*#FIN:\2\*\/|<!--#BLOC:([\s\S]*?)-->[\s\S]*?<!--#FIN:\3-->)/g;
-            
-            let match;
-            let lastIndex = 0;
-            let freeHeaders = [];
+      return units;
+    }
 
-            while ((match = regex.exec(text)) !== null) {
-                // S'il y a du texte libre avant le premier bloc (ex: balises <style>, imports, entêtes)
-                if (match.index > lastIndex) {
-                    const freeText = text.substring(lastIndex, match.index).trim();
-                    if (freeText) {
-                        blocks.push({ type: 'free', content: freeText });
-                    }
-                }
-                blocks.push({ type: 'block', content: match[0] });
-                lastIndex = regex.lastIndex;
+    // Si un bloc parent est trop grand pour une partie, descend d'un niveau pour utiliser ses sous-blocs
+    function expandOversizedBlocks(lines, maxAllowedWeight) {
+      const topUnits = parseTopLevelUnits(lines);
+      const result = [];
+
+      for (const unit of topUnits) {
+        if (unit.isBlock && unit.weight > maxAllowedWeight && unit.lines.length > 2) {
+          const headerLine = unit.lines[0];
+          const footerLine = unit.lines[unit.lines.length - 1];
+          const innerLines = unit.lines.slice(1, -1);
+
+          // Vérifie s'il y a des sous-blocs à l'intérieur
+          const innerUnits = parseTopLevelUnits(innerLines);
+          const hasSubBlocks = innerUnits.some(u => u.isBlock);
+
+          if (hasSubBlocks) {
+            // Rattache le marqueur d'ouverture au premier sous-élément et fermeture au dernier
+            innerUnits[0].lines.unshift(headerLine);
+            innerUnits[0].weight += 1;
+
+            const lastIdx = innerUnits.length - 1;
+            innerUnits[lastIdx].lines.push(footerLine);
+            innerUnits[lastIdx].weight += 1;
+
+            // Descente récursive si un sous-bloc est encore trop grand
+            for (const sub of innerUnits) {
+              if (sub.isBlock && sub.weight > maxAllowedWeight) {
+                result.push(...expandOversizedBlocks(sub.lines, maxAllowedWeight));
+              } else {
+                result.push(sub);
+              }
             }
+          } else {
+            // Aucun sous-bloc : on garde le bloc atomique intact pour ne jamais le tronquer
+            result.push(unit);
+          }
+        } else {
+          result.push(unit);
+        }
+      }
 
-            // S'il reste du texte à la fin
-            if (lastIndex < text.length) {
-                const remaining = text.substring(lastIndex).trim();
-                if (remaining) {
-                    blocks.push({ type: 'free', content: remaining });
-                }
+      return result;
+    }
+
+    function partitionBalancedUnits(lines, targetParts) {
+      const totalLines = lines.length;
+      if (totalLines === 0) return [];
+
+      const idealSize = Math.ceil(totalLines / Math.max(1, targetParts));
+      // Seuil : un bloc parent n'est ouvert en sous-blocs que s'il dépasse 1.15x la taille idéale d'une part
+      const units = expandOversizedBlocks(lines, idealSize * 1.15);
+
+      const n = units.length;
+      const k = Math.min(Math.max(1, targetParts), n);
+
+      const prefix = new Array(n + 1).fill(0);
+      for (let i = 0; i < n; i++) {
+        prefix[i + 1] = prefix[i] + units[i].weight;
+      }
+
+      const totalWeight = prefix[n];
+      const ideal = totalWeight / k;
+
+      const dp = Array.from({ length: k + 1 }, () => new Array(n + 1).fill(Infinity));
+      const parent = Array.from({ length: k + 1 }, () => new Array(n + 1).fill(0));
+
+      dp[0][0] = 0;
+
+      for (let p = 1; p <= k; p++) {
+        for (let i = p; i <= n; i++) {
+          for (let j = p - 1; j < i; j++) {
+            const segWeight = prefix[i] - prefix[j];
+            const diff = segWeight - ideal;
+            // Légère pénalité supplémentaire si la coupe tombe entre deux lignes sans saut ni bloc
+            const boundaryPenalty = (!units[j]?.isBlock && units[j]?.lines[0]?.trim() !== '') ? 0.5 : 0;
+            const cost = dp[p - 1][j] + (diff * diff) + boundaryPenalty;
+            if (cost < dp[p][i]) {
+              dp[p][i] = cost;
+              parent[p][i] = j;
             }
-
-            // Si aucun marqueur n'a été trouvé, on découpe par lignes ou blocs de lignes pour éviter de bloquer l'utilisateur
-            if (blocks.length === 0 && text.trim().length > 0) {
-                const lines = text.split('\n');
-                let chunkLines = [];
-                lines.forEach((line, idx) => {
-                    chunkLines.push(line);
-                    if (chunkLines.length >= 25 || idx === lines.length - 1) {
-                        blocks.push({ type: 'free', content: chunkLines.join('\n') });
-                        chunkLines = [];
-                    }
-                });
-            }
-
-            return blocks;
+          }
         }
+      }
 
-        function analyzeCode() {
-            const text = document.getElementById('source-code').value;
-            const blocks = parseBlocks(text);
-            document.getElementById('stats-blocks').innerText = `${blocks.length} blocs / éléments détectés`;
-            processSplitting();
+      const slices = [];
+      let curr = n;
+      for (let p = k; p >= 1; p--) {
+        const prev = parent[p][curr];
+        slices.unshift([prev, curr]);
+        curr = prev;
+      }
+
+      return slices.map(([start, end]) => {
+        const mergedLines = [];
+        for (let u = start; u < end; u++) {
+          mergedLines.push(...units[u].lines);
         }
+        return {
+          text: mergedLines.join('\n'),
+          lineCount: mergedLines.length
+        };
+      });
+    }
 
-        function processSplitting() {
-            const text = document.getElementById('source-code').value;
-            if (!text.trim()) {
-                generatedChunks = [];
-                renderChunks();
-                document.getElementById('preview-content').innerText = "Sélectionne un morceau ci-dessus pour voir son contenu...";
-                document.getElementById('preview-title').innerText = "Aperçu du morceau";
-                document.getElementById('btn-copy-preview').classList.add('hidden');
-                document.getElementById('stats-parts-count').innerText = "0";
-                return;
-            }
+    function splitCode() {
+      const raw = dom.codeInput.value;
+      if (!raw.trim()) {
+        showToast('Collez du code avant de découper');
+        return;
+      }
 
-            const blocks = parseBlocks(text);
-            const targetParts = Math.min(currentPartsCount, blocks.length > 0 ? blocks.length : 1);
-            
-            generatedChunks = [];
-            
-            if (blocks.length <= targetParts) {
-                // S'il y a moins de blocs que de morceaux demandés, chaque bloc devient son propre morceau
-                blocks.forEach(b => generatedChunks.push(b.content));
-            } else {
-                // Répartition équilibrée intelligente
-                const blockSize = Math.ceil(blocks.length / targetParts);
-                for (let i = 0; i < blocks.length; i += blockSize) {
-                    const chunkBlocks = blocks.slice(i, i + blockSize);
-                    const chunkString = chunkBlocks.map(b => b.content).join('\n\n');
-                    generatedChunks.push(chunkString);
-                }
-            }
+      const lines = raw.split(/\r?\n/);
+      const requestedParts = parseInt(dom.partsCount.value, 10) || 1;
 
-            document.getElementById('stats-parts-count').innerText = generatedChunks.length;
-            renderChunks();
+      state.chunks = partitionBalancedUnits(lines, requestedParts);
+      state.copiedSet.clear();
+      state.activeIndex = -1;
 
-            // Sélectionner par défaut le premier morceau si disponible
-            if (generatedChunks.length > 0) {
-                selectChunk(0);
-            }
+      renderChunks();
+    }
+
+    function renderChunks() {
+      dom.resultsCard.style.display = 'flex';
+      dom.chunksGrid.innerHTML = '';
+
+      const total = state.chunks.length;
+      dom.resultsInfo.textContent = `${total} partie${total > 1 ? 's' : ''} (aucun bloc tronqué)`;
+      updateCopiedCounter();
+
+      state.chunks.forEach((chunk, index) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chunk-btn';
+        btn.innerHTML = `
+          <span class="chunk-status"></span>
+          <span class="chunk-num">#${index + 1}</span>
+          <span class="chunk-lines">${chunk.lineCount} lig.</span>
+        `;
+
+        btn.addEventListener('click', () => handleChunkClick(index, btn));
+        dom.chunksGrid.appendChild(btn);
+      });
+
+      dom.previewBox.textContent = 'Touchez un carré pour copier et prévisualiser...';
+    }
+
+    async function handleChunkClick(index, btnElement) {
+      const chunk = state.chunks[index];
+      if (!chunk) return;
+
+      try {
+        await navigator.clipboard.writeText(chunk.text);
+      } catch {
+        const temp = document.createElement('textarea');
+        temp.value = chunk.text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+      }
+
+      if (navigator.vibrate) {
+        navigator.vibrate(25);
+      }
+
+      state.copiedSet.add(index);
+      state.activeIndex = index;
+
+      document.querySelectorAll('.chunk-btn').forEach((el, idx) => {
+        el.classList.toggle('active-preview', idx === index);
+      });
+      btnElement.classList.add('copied');
+
+      updateCopiedCounter();
+      dom.previewBox.textContent = chunk.text;
+      showToast(`Partie #${index + 1} copiée (${chunk.lineCount} lignes)`);
+    }
+
+    function updateStats() {
+      const val = dom.codeInput.value;
+      const count = val ? val.split(/\r?\n/).length : 0;
+      dom.statsBadge.textContent = `${count} ligne${count > 1 ? 's' : ''}`;
+    }
+
+    function updateCopiedCounter() {
+      dom.copiedCounter.textContent = `${state.copiedSet.size} / ${state.chunks.length} copiés`;
+    }
+
+    function syncPresets(val) {
+      dom.presets.forEach(btn => {
+        btn.classList.toggle('active', parseInt(btn.dataset.val, 10) === val);
+      });
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      dom.toast.textContent = msg;
+      dom.toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        dom.toast.classList.remove('show');
+      }, 1800);
+    }
+
+    function initEvents() {
+      dom.codeInput.addEventListener('input', updateStats);
+
+      dom.btnMinus.addEventListener('click', () => {
+        const val = Math.max(1, (parseInt(dom.partsCount.value, 10) || 1) - 1);
+        dom.partsCount.value = val;
+        syncPresets(val);
+      });
+
+      dom.btnPlus.addEventListener('click', () => {
+        const val = Math.min(50, (parseInt(dom.partsCount.value, 10) || 1) + 1);
+        dom.partsCount.value = val;
+        syncPresets(val);
+      });
+
+      dom.partsCount.addEventListener('input', () => {
+        const val = parseInt(dom.partsCount.value, 10) || 1;
+        syncPresets(val);
+      });
+
+      dom.presets.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = parseInt(btn.dataset.val, 10);
+          dom.partsCount.value = val;
+          syncPresets(val);
+        });
+      });
+
+      dom.btnPaste.addEventListener('click', async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          dom.codeInput.value = text;
+          updateStats();
+          showToast('Code collé depuis le presse-papier');
+        } catch {
+          showToast('Autorisez l’accès au presse-papier ou collez manuellement');
         }
+      });
 
-        function renderChunks() {
-            const grid = document.getElementById('chunks-grid');
-            if (generatedChunks.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center text-xs text-gray-500 py-6">Colle du code balisé à gauche pour générer les morceaux.</div>`;
-                return;
-            }
+      dom.btnClear.addEventListener('click', () => {
+        dom.codeInput.value = '';
+        updateStats();
+        dom.resultsCard.style.display = 'none';
+      });
 
-            let html = '';
-            generatedChunks.forEach((chunk, idx) => {
-                const isActive = activeChunkIndex === idx;
-                const activeClass = isActive ? 'bg-indigo-600 border-indigo-400 text-white shadow-lg scale-105 ring-2 ring-indigo-500/50' : 'bg-dark-700 hover:bg-dark-600 border-gray-700 text-gray-300';
-                
-                html += `
-                    <button onclick="handleChunkClick(${idx})" 
-                        class="aspect-square rounded-xl font-mono text-xs font-bold flex flex-col items-center justify-center transition-all duration-200 border ${activeClass} active:scale-95 raised-shadow relative group"
-                        title="Morceau ${idx + 1} (${chunk.length} caractères) - Clic pour copier">
-                        <span class="text-sm">#${idx + 1}</span>
-                        <span class="text-[9px] opacity-60 font-normal">${Math.round(chunk.length / 100) / 10}k</span>
-                    </button>
-                `;
-            });
-            grid.innerHTML = html;
-        }
+      dom.btnSplit.addEventListener('click', splitCode);
+    }
 
-        function handleChunkClick(idx) {
-            selectChunk(idx);
-            copyChunkToClipboard(idx);
-        }
-
-        function selectChunk(idx) {
-            activeChunkIndex = idx;
-            renderChunks();
-            
-            const content = generatedChunks[idx];
-            document.getElementById('preview-title').innerText = `Morceau #${idx + 1} sur ${generatedChunks.length} (${content.length} caractères)`;
-            document.getElementById('preview-content').innerText = content;
-            document.getElementById('btn-copy-preview').classList.remove('hidden');
-        }
-
-        function copyCurrentPreview() {
-            if (activeChunkIndex !== null && generatedChunks[activeChunkIndex]) {
-                copyTextToClipboard(generatedChunks[activeChunkIndex], `Morceau #${activeChunkIndex + 1} copié !`);
-            }
-        }
-
-        function copyChunkToClipboard(idx) {
-            copyTextToClipboard(generatedChunks[idx], `Morceau #${idx + 1} copié dans le presse-papiers !`);
-        }
-
-        function copyTextToClipboard(text, successMsg) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast(successMsg);
-            }).catch(err => {
-                console.error('Erreur lors de la copie: ', err);
-                showToast('Erreur lors de la copie', true);
-            });
-        }
-
-        function showToast(msg, isError = false) {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toast-msg');
-            toastMsg.innerText = msg;
-            toast.className = `fixed bottom-6 right-6 px-4 py-2 rounded-xl text-xs font-medium shadow-2xl transition-all duration-300 transform translate-y-0 opacity-100 z-50 flex items-center gap-2 ${isError ? 'bg-red-600 text-white' : 'bg-indigo-600 text-white'}`;
-            
-            setTimeout(() => {
-                toast.className = 'fixed bottom-6 right-6 bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-medium shadow-2xl transition-all duration-300 transform translate-y-16 opacity-0 pointer-events-none z-50 flex items-center gap-2';
-            }, 2500);
-        }
-    </script>
-<script>
-if ('serviceWorker' in navigator) {
-window.addEventListener('load',()=>{
-navigator.serviceWorker.register('./sw.js').catch(err=>console.error(err));
-});
-}
-</script>
+    initEvents();
+  </script>
 </body>
 </html>
