@@ -4,8 +4,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#dcbc8c",
-  "theme_color": "#dcbc8c",
+  "background_color": "#2d3213",
+  "theme_color": "#2d3213",
   "icons": [
     {
       "src": "icon-192.png",
@@ -26,5 +26,5 @@
       "purpose": "maskable"
     }
   ],
-  "description": "Decoupeur de longs codes"
+  "description": "Intelligent Code splitter"
 }
