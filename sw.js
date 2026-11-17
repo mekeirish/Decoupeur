@@ -1,5 +1,5 @@
 const PREFIX="Decoupeur-";
-const CACHE="Decoupeur-v1794819798243";
+const CACHE="Decoupeur-v1794900073179";
 const ASSETS=['./','./index.html','./manifest.json','./icon.png','./icon-192.png'];
 self.addEventListener('install',e=>{
 self.skipWaiting();
