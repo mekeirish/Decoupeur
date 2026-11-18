@@ -286,6 +286,12 @@
       color: var(--text-muted);
       font-weight: 600;
     }
+.chunk-chars {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  opacity: 0.75;
+}
 
     .chunk-status {
       position: absolute;
@@ -531,65 +537,67 @@
       return result;
     }
 
-    function partitionBalancedUnits(lines, targetParts) {
-      const totalLines = lines.length;
-      if (totalLines === 0) return [];
+function partitionBalancedUnits(lines, targetParts) {
+  const totalLines = lines.length;
+  if (totalLines === 0) return [];
 
-      const idealSize = Math.ceil(totalLines / Math.max(1, targetParts));
-      // Seuil : un bloc parent n'est ouvert en sous-blocs que s'il dépasse 1.15x la taille idéale d'une part
-      const units = expandOversizedBlocks(lines, idealSize * 1.15);
+  const idealSize = Math.ceil(totalLines / Math.max(1, targetParts));
+  // Seuil : un bloc parent n'est ouvert en sous-blocs que s'il dépasse 1.15x la taille idéale d'une part
+  const units = expandOversizedBlocks(lines, idealSize * 1.15);
 
-      const n = units.length;
-      const k = Math.min(Math.max(1, targetParts), n);
+  const n = units.length;
+  const k = Math.min(Math.max(1, targetParts), n);
 
-      const prefix = new Array(n + 1).fill(0);
-      for (let i = 0; i < n; i++) {
-        prefix[i + 1] = prefix[i] + units[i].weight;
-      }
+  const prefix = new Array(n + 1).fill(0);
+  for (let i = 0; i < n; i++) {
+    prefix[i + 1] = prefix[i] + units[i].weight;
+  }
 
-      const totalWeight = prefix[n];
-      const ideal = totalWeight / k;
+  const totalWeight = prefix[n];
+  const ideal = totalWeight / k;
 
-      const dp = Array.from({ length: k + 1 }, () => new Array(n + 1).fill(Infinity));
-      const parent = Array.from({ length: k + 1 }, () => new Array(n + 1).fill(0));
+  const dp = Array.from({ length: k + 1 }, () => new Array(n + 1).fill(Infinity));
+  const parent = Array.from({ length: k + 1 }, () => new Array(n + 1).fill(0));
 
-      dp[0][0] = 0;
+  dp[0][0] = 0;
 
-      for (let p = 1; p <= k; p++) {
-        for (let i = p; i <= n; i++) {
-          for (let j = p - 1; j < i; j++) {
-            const segWeight = prefix[i] - prefix[j];
-            const diff = segWeight - ideal;
-            // Légère pénalité supplémentaire si la coupe tombe entre deux lignes sans saut ni bloc
-            const boundaryPenalty = (!units[j]?.isBlock && units[j]?.lines[0]?.trim() !== '') ? 0.5 : 0;
-            const cost = dp[p - 1][j] + (diff * diff) + boundaryPenalty;
-            if (cost < dp[p][i]) {
-              dp[p][i] = cost;
-              parent[p][i] = j;
-            }
-          }
+  for (let p = 1; p <= k; p++) {
+    for (let i = p; i <= n; i++) {
+      for (let j = p - 1; j < i; j++) {
+        const segWeight = prefix[i] - prefix[j];
+        const diff = segWeight - ideal;
+        // Légère pénalité supplémentaire si la coupe tombe entre deux lignes sans saut ni bloc
+        const boundaryPenalty = (!units[j]?.isBlock && units[j]?.lines[0]?.trim() !== '') ? 0.5 : 0;
+        const cost = dp[p - 1][j] + (diff * diff) + boundaryPenalty;
+        if (cost < dp[p][i]) {
+          dp[p][i] = cost;
+          parent[p][i] = j;
         }
       }
-
-      const slices = [];
-      let curr = n;
-      for (let p = k; p >= 1; p--) {
-        const prev = parent[p][curr];
-        slices.unshift([prev, curr]);
-        curr = prev;
-      }
-
-      return slices.map(([start, end]) => {
-        const mergedLines = [];
-        for (let u = start; u < end; u++) {
-          mergedLines.push(...units[u].lines);
-        }
-        return {
-          text: mergedLines.join('\n'),
-          lineCount: mergedLines.length
-        };
-      });
     }
+  }
+
+  const slices = [];
+  let curr = n;
+  for (let p = k; p >= 1; p--) {
+    const prev = parent[p][curr];
+    slices.unshift([prev, curr]);
+    curr = prev;
+  }
+
+  return slices.map(([start, end]) => {
+    const mergedLines = [];
+    for (let u = start; u < end; u++) {
+      mergedLines.push(...units[u].lines);
+    }
+    const text = mergedLines.join('\n');
+    return {
+      text: text,
+      lineCount: mergedLines.length,
+      charCount: text.length
+    };
+  });
+}
 
     function splitCode() {
       const raw = dom.codeInput.value;
@@ -620,11 +628,12 @@
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'chunk-btn';
-        btn.innerHTML = `
-          <span class="chunk-status"></span>
-          <span class="chunk-num">#${index + 1}</span>
-          <span class="chunk-lines">${chunk.lineCount} lig.</span>
-        `;
+btn.innerHTML = `
+  <span class="chunk-status"></span>
+  <span class="chunk-num">#${index + 1}</span>
+  <span class="chunk-lines">${chunk.lineCount} lig.</span>
+  <span class="chunk-chars">${chunk.charCount} car.</span>
+`;
 
         btn.addEventListener('click', () => handleChunkClick(index, btn));
         dom.chunksGrid.appendChild(btn);
