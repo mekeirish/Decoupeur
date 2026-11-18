@@ -83,6 +83,7 @@
       background: rgba(0, 229, 255, 0.12);
       color: var(--accent-cyan);
       border: 1px solid rgba(0, 229, 255, 0.25);
+      white-space: nowrap;
     }
 
     .card {
@@ -142,6 +143,25 @@
 
     textarea:focus {
       border-color: var(--accent-cyan);
+    }
+    textarea::-webkit-scrollbar,
+    .preview-box::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    textarea::-webkit-scrollbar-track,
+    .preview-box::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    textarea::-webkit-scrollbar-thumb,
+    .preview-box::-webkit-scrollbar-thumb {
+      background: var(--bg-elevated);
+      border-radius: 4px;
+      border: 1px solid var(--border-subtle);
+    }
+    textarea::-webkit-scrollbar-thumb:hover,
+    .preview-box::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
     }
 
     .controls-row {
@@ -235,11 +255,55 @@
       font-size: 0.82rem;
       color: var(--text-muted);
     }
+    .progress-track {
+      width: 100%;
+      height: 4px;
+      background: var(--bg-base);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-top: -4px;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
 
     .grid-chunks {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
       gap: 10px;
+    }
+    .btn-copy-next {
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--accent-cyan);
+      border-radius: var(--radius-md);
+      background: rgba(0, 229, 255, 0.08);
+      color: var(--accent-cyan);
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .btn-copy-next:hover {
+      background: rgba(0, 229, 255, 0.16);
+      box-shadow: 0 0 16px rgba(0, 229, 255, 0.2);
+    }
+    .btn-copy-next:active {
+      transform: scale(0.98);
+    }
+    .btn-copy-next.all-done {
+      border-color: var(--accent-green);
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--accent-green);
+      cursor: default;
     }
 
     .chunk-btn {
@@ -256,6 +320,11 @@
       cursor: pointer;
       position: relative;
       transition: all 0.18s ease;
+    }
+    .chunk-btn:hover {
+      border-color: var(--accent-cyan);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(0, 229, 255, 0.18);
     }
 
     .chunk-btn:active {
@@ -286,12 +355,11 @@
       color: var(--text-muted);
       font-weight: 600;
     }
-.chunk-chars {
-  font-size: 0.62rem;
-  color: var(--text-muted);
-  font-weight: 500;
-  opacity: 0.75;
-}
+    .chunk-chars {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
 
     .chunk-status {
       position: absolute;
@@ -415,7 +483,9 @@
         <span id="resultsInfo">Parties générées</span>
         <span id="copiedCounter">0 / 0 copiés</span>
       </div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
       <div class="grid-chunks" id="chunksGrid"></div>
+      <button type="button" class="btn-copy-next" id="btnCopyNext">Copier la partie suivante (#1)</button>
       <div class="preview-box" id="previewBox">Touchez un carré pour copier et prévisualiser...</div>
     </section>
   </div>
@@ -441,6 +511,8 @@
       resultsCard: document.getElementById('resultsCard'),
       resultsInfo: document.getElementById('resultsInfo'),
       copiedCounter: document.getElementById('copiedCounter'),
+      progressFill: document.getElementById('progressFill'),
+      btnCopyNext: document.getElementById('btnCopyNext'),
       chunksGrid: document.getElementById('chunksGrid'),
       previewBox: document.getElementById('previewBox'),
       toast: document.getElementById('toast'),
@@ -537,67 +609,67 @@
       return result;
     }
 
-function partitionBalancedUnits(lines, targetParts) {
-  const totalLines = lines.length;
-  if (totalLines === 0) return [];
+    function partitionBalancedUnits(lines, targetParts) {
+      const totalLines = lines.length;
+      if (totalLines === 0) return [];
 
-  const idealSize = Math.ceil(totalLines / Math.max(1, targetParts));
-  // Seuil : un bloc parent n'est ouvert en sous-blocs que s'il dépasse 1.15x la taille idéale d'une part
-  const units = expandOversizedBlocks(lines, idealSize * 1.15);
+      const idealSize = Math.ceil(totalLines / Math.max(1, targetParts));
+      // Seuil : un bloc parent n'est ouvert en sous-blocs que s'il dépasse 1.15x la taille idéale d'une part
+      const units = expandOversizedBlocks(lines, idealSize * 1.15);
 
-  const n = units.length;
-  const k = Math.min(Math.max(1, targetParts), n);
+      const n = units.length;
+      const k = Math.min(Math.max(1, targetParts), n);
 
-  const prefix = new Array(n + 1).fill(0);
-  for (let i = 0; i < n; i++) {
-    prefix[i + 1] = prefix[i] + units[i].weight;
-  }
+      const prefix = new Array(n + 1).fill(0);
+      for (let i = 0; i < n; i++) {
+        prefix[i + 1] = prefix[i] + units[i].weight;
+      }
 
-  const totalWeight = prefix[n];
-  const ideal = totalWeight / k;
+      const totalWeight = prefix[n];
+      const ideal = totalWeight / k;
 
-  const dp = Array.from({ length: k + 1 }, () => new Array(n + 1).fill(Infinity));
-  const parent = Array.from({ length: k + 1 }, () => new Array(n + 1).fill(0));
+      const dp = Array.from({ length: k + 1 }, () => new Array(n + 1).fill(Infinity));
+      const parent = Array.from({ length: k + 1 }, () => new Array(n + 1).fill(0));
 
-  dp[0][0] = 0;
+      dp[0][0] = 0;
 
-  for (let p = 1; p <= k; p++) {
-    for (let i = p; i <= n; i++) {
-      for (let j = p - 1; j < i; j++) {
-        const segWeight = prefix[i] - prefix[j];
-        const diff = segWeight - ideal;
-        // Légère pénalité supplémentaire si la coupe tombe entre deux lignes sans saut ni bloc
-        const boundaryPenalty = (!units[j]?.isBlock && units[j]?.lines[0]?.trim() !== '') ? 0.5 : 0;
-        const cost = dp[p - 1][j] + (diff * diff) + boundaryPenalty;
-        if (cost < dp[p][i]) {
-          dp[p][i] = cost;
-          parent[p][i] = j;
+      for (let p = 1; p <= k; p++) {
+        for (let i = p; i <= n; i++) {
+          for (let j = p - 1; j < i; j++) {
+            const segWeight = prefix[i] - prefix[j];
+            const diff = segWeight - ideal;
+            // Légère pénalité supplémentaire si la coupe tombe entre deux lignes sans saut ni bloc
+            const boundaryPenalty = (!units[j]?.isBlock && units[j]?.lines[0]?.trim() !== '') ? 0.5 : 0;
+            const cost = dp[p - 1][j] + (diff * diff) + boundaryPenalty;
+            if (cost < dp[p][i]) {
+              dp[p][i] = cost;
+              parent[p][i] = j;
+            }
+          }
         }
       }
-    }
-  }
 
-  const slices = [];
-  let curr = n;
-  for (let p = k; p >= 1; p--) {
-    const prev = parent[p][curr];
-    slices.unshift([prev, curr]);
-    curr = prev;
-  }
+      const slices = [];
+      let curr = n;
+      for (let p = k; p >= 1; p--) {
+        const prev = parent[p][curr];
+        slices.unshift([prev, curr]);
+        curr = prev;
+      }
 
-  return slices.map(([start, end]) => {
-    const mergedLines = [];
-    for (let u = start; u < end; u++) {
-      mergedLines.push(...units[u].lines);
+      return slices.map(([start, end]) => {
+        const mergedLines = [];
+        for (let u = start; u < end; u++) {
+          mergedLines.push(...units[u].lines);
+        }
+        const text = mergedLines.join('\n');
+        return {
+          text,
+          lineCount: mergedLines.length,
+          charCount: text.length
+        };
+      });
     }
-    const text = mergedLines.join('\n');
-    return {
-      text: text,
-      lineCount: mergedLines.length,
-      charCount: text.length
-    };
-  });
-}
 
     function splitCode() {
       const raw = dom.codeInput.value;
@@ -628,12 +700,12 @@ function partitionBalancedUnits(lines, targetParts) {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'chunk-btn';
-btn.innerHTML = `
-  <span class="chunk-status"></span>
-  <span class="chunk-num">#${index + 1}</span>
-  <span class="chunk-lines">${chunk.lineCount} lig.</span>
-  <span class="chunk-chars">${chunk.charCount} car.</span>
-`;
+        btn.innerHTML = `
+          <span class="chunk-status"></span>
+          <span class="chunk-num">#${index + 1}</span>
+          <span class="chunk-lines">${chunk.lineCount} lig.</span>
+          <span class="chunk-chars">${chunk.charCount} car.</span>
+        `;
 
         btn.addEventListener('click', () => handleChunkClick(index, btn));
         dom.chunksGrid.appendChild(btn);
@@ -667,21 +739,50 @@ btn.innerHTML = `
       document.querySelectorAll('.chunk-btn').forEach((el, idx) => {
         el.classList.toggle('active-preview', idx === index);
       });
-      btnElement.classList.add('copied');
+      const btn = btnElement || (dom.chunksGrid && dom.chunksGrid.children[index]);
+      if (btn) btn.classList.add('copied');
 
       updateCopiedCounter();
       dom.previewBox.textContent = chunk.text;
-      showToast(`Partie #${index + 1} copiée (${chunk.lineCount} lignes)`);
+      showToast(`Partie #${index + 1} copiée (${chunk.lineCount} lignes, ${chunk.charCount} car.)`);
+    }
+    function copyNextChunk() {
+      if (!state.chunks || state.chunks.length === 0) return;
+      let target = state.chunks.findIndex((_, idx) => !state.copiedSet.has(idx));
+      if (target === -1) target = 0;
+      handleChunkClick(target, dom.chunksGrid.children[target]);
     }
 
     function updateStats() {
       const val = dom.codeInput.value;
-      const count = val ? val.split(/\r?\n/).length : 0;
-      dom.statsBadge.textContent = `${count} ligne${count > 1 ? 's' : ''}`;
+      const lines = val ? val.split(/\r?\n/).length : 0;
+      const chars = val ? val.length : 0;
+      dom.statsBadge.textContent = `${lines} lig. · ${chars.toLocaleString('fr-FR')} car.`;
     }
 
     function updateCopiedCounter() {
-      dom.copiedCounter.textContent = `${state.copiedSet.size} / ${state.chunks.length} copiés`;
+      const total = state.chunks.length;
+      const copied = state.copiedSet.size;
+      const allDone = total > 0 && copied === total;
+
+      dom.copiedCounter.textContent = allDone ? `${total} / ${total} copiés ✓` : `${copied} / ${total} copiés`;
+
+      if (dom.progressFill) {
+        const pct = total > 0 ? (copied / total) * 100 : 0;
+        dom.progressFill.style.width = `${pct}%`;
+      }
+
+      if (dom.btnCopyNext) {
+        if (allDone) {
+          dom.btnCopyNext.textContent = '✓ Toutes les parties sont copiées';
+          dom.btnCopyNext.classList.add('all-done');
+        } else {
+          const nextIndex = state.chunks.findIndex((_, idx) => !state.copiedSet.has(idx));
+          const target = nextIndex !== -1 ? nextIndex : 0;
+          dom.btnCopyNext.textContent = `Copier la partie suivante (#${target + 1})`;
+          dom.btnCopyNext.classList.remove('all-done');
+        }
+      }
     }
 
     function syncPresets(val) {
@@ -702,6 +803,12 @@ btn.innerHTML = `
 
     function initEvents() {
       dom.codeInput.addEventListener('input', updateStats);
+      dom.codeInput.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+          e.preventDefault();
+          splitCode();
+        }
+      });
 
       dom.btnMinus.addEventListener('click', () => {
         const val = Math.max(1, (parseInt(dom.partsCount.value, 10) || 1) - 1);
@@ -746,6 +853,9 @@ btn.innerHTML = `
       });
 
       dom.btnSplit.addEventListener('click', splitCode);
+      if (dom.btnCopyNext) {
+        dom.btnCopyNext.addEventListener('click', copyNextChunk);
+      }
     }
 
     initEvents();
