@@ -276,6 +276,60 @@
       grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
       gap: 10px;
     }
+.chunk-search {
+  width: 100%;
+  background: var(--bg-base);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 11px 13px;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.chunk-search:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.1);
+}
+.chunk-search::placeholder {
+  color: var(--text-muted);
+}
+.chunk-btn.search-match {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 229, 255, 0.14);
+  box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2), 0 0 16px rgba(0, 229, 255, 0.2);
+  transform: translateY(-2px);
+}
+.chunk-btn.search-dimmed {
+  opacity: 0.3;
+}
+    .integrity-panel {
+      padding: 12px;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      background: var(--bg-base);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.76rem;
+      line-height: 1.5;
+      color: var(--text-muted);
+      overflow-wrap: anywhere;
+    }
+
+    .integrity-panel.ok {
+      border-color: rgba(16, 185, 129, 0.5);
+    }
+
+    .integrity-panel.error {
+      border-color: rgba(239, 68, 68, 0.65);
+      color: #fca5a5;
+    }
+
+    .integrity-title {
+      font-weight: 800;
+      color: var(--text-main);
+    }
     .btn-copy-next {
       width: 100%;
       padding: 11px;
@@ -352,8 +406,8 @@
 
     .chunk-lines {
       font-size: 0.68rem;
-      color: var(--text-muted);
-      font-weight: 600;
+      color: #facc15;
+      font-weight: 700;
     }
     .chunk-chars {
       font-size: 0.68rem;
@@ -483,10 +537,22 @@
         <span id="resultsInfo">Parties générées</span>
         <span id="copiedCounter">0 / 0 copiés</span>
       </div>
+<input
+  type="search"
+  id="chunkSearch"
+  class="chunk-search"
+  placeholder="⌕ Rechercher un mot dans les découpes..."
+  autocomplete="off"
+  spellcheck="false"
+>
       <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
       <div class="grid-chunks" id="chunksGrid"></div>
       <button type="button" class="btn-copy-next" id="btnCopyNext">Copier la partie suivante (#1)</button>
       <div class="preview-box" id="previewBox">Touchez un carré pour copier et prévisualiser...</div>
+      <div class="integrity-panel" id="integrityPanel">
+        <span class="integrity-title">Contrôle d’intégrité</span>
+        <span>Le contrôle sera effectué après le découpage.</span>
+      </div>
     </section>
   </div>
 
@@ -516,7 +582,10 @@
       chunksGrid: document.getElementById('chunksGrid'),
       previewBox: document.getElementById('previewBox'),
       toast: document.getElementById('toast'),
-      presets: document.querySelectorAll('.preset-btn')
+      presets: document.querySelectorAll('.preset-btn'),
+      chunkSearch: document.getElementById('chunkSearch'),
+      searchInfo: document.getElementById('searchInfo'),
+      integrityPanel: document.getElementById('integrityPanel')
     };
 
     // Analyse un segment de lignes en unités de premier niveau (blocs entiers ou lignes libres)
@@ -673,8 +742,25 @@
 
     function splitCode() {
       const raw = dom.codeInput.value;
+
       if (!raw.trim()) {
         showToast('Collez du code avant de découper');
+        return;
+      }
+
+      const validation = validateBlockMarkers(raw);
+
+      if (!validation.valid) {
+        state.integrity = {
+          valid: false,
+          exactMatch: false,
+          errors: validation.errors,
+          totalLines: raw.split(/\r?\n/).length
+        };
+
+        dom.resultsCard.style.display = 'flex';
+        renderIntegrityReport();
+        showToast('Découpage bloqué : marqueurs incomplets');
         return;
       }
 
@@ -684,6 +770,8 @@
       state.chunks = partitionBalancedUnits(lines, requestedParts);
       state.copiedSet.clear();
       state.activeIndex = -1;
+
+      state.integrity = runIntegrityCheck(raw);
 
       renderChunks();
     }
@@ -700,6 +788,7 @@
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'chunk-btn';
+
         btn.innerHTML = `
           <span class="chunk-status"></span>
           <span class="chunk-num">#${index + 1}</span>
@@ -712,7 +801,38 @@
       });
 
       dom.previewBox.textContent = 'Touchez un carré pour copier et prévisualiser...';
+
+      applyChunkSearch();
+      renderIntegrityReport();
     }
+function updateChunkSearch() {
+  const searchInput = document.getElementById('chunkSearch');
+  if (!searchInput) return;
+
+  const query = searchInput.value
+    .trim()
+    .toLocaleLowerCase('fr')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+
+  const terms = query.split(/\s+/).filter(Boolean);
+
+  document.querySelectorAll('.chunk-btn').forEach((btn, index) => {
+    const chunk = state.chunks[index];
+    if (!chunk) return;
+
+    const content = chunk.text
+      .toLocaleLowerCase('fr')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '');
+
+    const matches = terms.length === 0 ||
+      terms.every(term => content.includes(term));
+
+    btn.classList.toggle('search-match', matches && terms.length > 0);
+    btn.classList.toggle('search-dimmed', !matches);
+  });
+}
 
     async function handleChunkClick(index, btnElement) {
       const chunk = state.chunks[index];
@@ -758,6 +878,205 @@
       const lines = val ? val.split(/\r?\n/).length : 0;
       const chars = val ? val.length : 0;
       dom.statsBadge.textContent = `${lines} lig. · ${chars.toLocaleString('fr-FR')} car.`;
+    }
+    // Vérifie que chaque marqueur #BLOC possède son #FIN correspondant.
+    function validateBlockMarkers(source) {
+      const lines = source.split(/\r?\n/);
+      const stack = [];
+      const errors = [];
+
+      const markerRegex = /(?:\/\*|<!--)\s*#(BLOC|FIN):([^\s*>-]+)\s*(?:\*\/|-->)/g;
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        markerRegex.lastIndex = 0;
+
+        let match;
+
+        while ((match = markerRegex.exec(line)) !== null) {
+          const type = match[1];
+          const name = match[2];
+
+          if (type === 'BLOC') {
+            stack.push({
+              name,
+              line: i + 1
+            });
+            continue;
+          }
+
+          if (stack.length === 0) {
+            errors.push(`Ligne ${i + 1} : #FIN:${name} sans ouverture correspondante.`);
+            continue;
+          }
+
+          const opened = stack.pop();
+
+          if (opened.name !== name) {
+            errors.push(
+              `Ligne ${i + 1} : #FIN:${name} ne correspond pas à #BLOC:${opened.name} (ligne ${opened.line}).`
+            );
+          }
+        }
+      }
+
+      stack.reverse().forEach(opened => {
+        errors.push(
+          `Ligne ${opened.line} : #BLOC:${opened.name} n'a pas de marqueur #FIN correspondant.`
+        );
+      });
+
+      return {
+        valid: errors.length === 0,
+        errors
+      };
+    }
+    // Vérifie que toutes les lignes du code source sont présentes dans les parties.
+    function runIntegrityCheck(source) {
+      const normalizedSource = source.replace(/\r\n/g, '\n');
+      const reconstructed = state.chunks.map(chunk => chunk.text).join('\n');
+      const totalLines = normalizedSource.split('\n').length;
+      const outputLines = state.chunks.reduce(
+        (total, chunk) => total + chunk.lineCount,
+        0
+      );
+
+      const blockCount = (source.match(
+        /(?:\/\*|<!--)\s*#BLOC:/g
+      ) || []).length;
+
+      const exactMatch = reconstructed === normalizedSource;
+
+      return {
+        valid: exactMatch && totalLines === outputLines,
+        exactMatch,
+        totalLines,
+        outputLines,
+        blockCount,
+        totalChunks: state.chunks.length,
+        totalChars: source.length,
+        errors: exactMatch
+          ? []
+          : ['Le contenu reconstitué diffère du code source.']
+      };
+    }
+    function renderIntegrityReport() {
+      if (!dom.integrityPanel || !state.integrity) return;
+
+      const report = state.integrity;
+      dom.integrityPanel.className = `integrity-panel ${report.valid ? 'ok' : 'error'}`;
+
+      const details = [
+        `<span class="integrity-title">${report.valid ? '✓ Intégrité vérifiée' : '⚠ Problème détecté'}</span>`
+      ];
+
+      if (report.totalLines !== undefined) {
+        details.push(`Lignes source : ${report.totalLines}`);
+      }
+
+      if (report.outputLines !== undefined) {
+        details.push(`Lignes réparties : ${report.outputLines}`);
+      }
+
+      if (report.totalChunks !== undefined) {
+        details.push(`Parties générées : ${report.totalChunks}`);
+      }
+
+      if (report.blockCount !== undefined) {
+        details.push(`Blocs détectés : ${report.blockCount}`);
+      }
+
+      if (report.totalChars !== undefined) {
+        details.push(`Caractères source : ${report.totalChars.toLocaleString('fr-FR')}`);
+      }
+
+      if (report.exactMatch !== undefined) {
+        details.push(
+          report.exactMatch
+            ? 'Contenu : aucune perte ni modification détectée.'
+            : 'Contenu : différence détectée entre la source et les parties.'
+        );
+      }
+
+      if (report.errors && report.errors.length) {
+        report.errors.forEach(error => {
+          details.push(`• ${error}`);
+        });
+      }
+
+      dom.integrityPanel.replaceChildren();
+
+      details.forEach(detail => {
+        const line = document.createElement('span');
+        line.textContent = detail.replace(/<[^>]*>/g, '');
+        if (detail.includes('integrity-title')) {
+          line.className = 'integrity-title';
+        }
+        dom.integrityPanel.appendChild(line);
+      });
+    }
+    function applyChunkSearch() {
+      if (!dom.chunkSearch || !dom.chunksGrid || !dom.searchInfo) return;
+
+      const query = dom.chunkSearch.value.trim().toLocaleLowerCase('fr-FR');
+      const buttons = Array.from(dom.chunksGrid.children);
+
+      if (!query) {
+        buttons.forEach(btn => {
+          btn.classList.remove('search-match', 'search-dim');
+        });
+
+        dom.searchInfo.textContent = state.chunks.length
+          ? `${state.chunks.length} parties disponibles`
+          : '';
+
+        return;
+      }
+
+      let matches = 0;
+
+      state.chunks.forEach((chunk, index) => {
+        const btn = buttons[index];
+        if (!btn) return;
+
+        const found = chunk.text.toLocaleLowerCase('fr-FR').includes(query);
+
+        btn.classList.toggle('search-match', found);
+        btn.classList.toggle('search-dim', !found);
+
+        if (found) matches++;
+      });
+
+      dom.searchInfo.textContent =
+        `${matches} résultat${matches > 1 ? 's' : ''} sur ${state.chunks.length} partie${state.chunks.length > 1 ? 's' : ''}`;
+    }
+    const LOCAL_DRAFT_KEY = 'codesplitter_pro_local_draft';
+
+    function saveLocalDraft() {
+      try {
+        const value = dom.codeInput.value;
+
+        if (value) {
+          localStorage.setItem(LOCAL_DRAFT_KEY, value);
+        } else {
+          localStorage.removeItem(LOCAL_DRAFT_KEY);
+        }
+      } catch (error) {
+        console.warn('Sauvegarde locale impossible :', error);
+      }
+    }
+    function restoreLocalDraft() {
+      try {
+        const saved = localStorage.getItem(LOCAL_DRAFT_KEY);
+
+        if (saved !== null && !dom.codeInput.value) {
+          dom.codeInput.value = saved;
+          updateStats();
+          showToast('Brouillon local restauré');
+        }
+      } catch (error) {
+        console.warn('Restauration locale impossible :', error);
+      }
     }
 
     function updateCopiedCounter() {
@@ -809,6 +1128,11 @@
           splitCode();
         }
       });
+      dom.codeInput.addEventListener('input', saveLocalDraft);
+const chunkSearch = document.getElementById('chunkSearch');
+if (chunkSearch) {
+  chunkSearch.addEventListener('input', updateChunkSearch);
+}
 
       dom.btnMinus.addEventListener('click', () => {
         const val = Math.max(1, (parseInt(dom.partsCount.value, 10) || 1) - 1);
@@ -851,6 +1175,13 @@
         updateStats();
         dom.resultsCard.style.display = 'none';
       });
+      dom.btnClear.addEventListener('click', () => {
+        try {
+          localStorage.removeItem(LOCAL_DRAFT_KEY);
+        } catch (error) {
+          console.warn('Suppression du brouillon impossible :', error);
+        }
+      });
 
       dom.btnSplit.addEventListener('click', splitCode);
       if (dom.btnCopyNext) {
@@ -859,6 +1190,7 @@
     }
 
     initEvents();
+    restoreLocalDraft();
   </script>
 <script>
 if ('serviceWorker' in navigator) {
